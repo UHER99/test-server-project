@@ -1,4 +1,4 @@
-name: Deploy Dev
+name: Deploy Main
 
 on:
   push:
@@ -11,16 +11,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Stop old container
         run: docker stop my_test_project || true
 
       - name: Remove old container
         run: docker rm my_test_project || true
-
-      - name: Remove old image
-        run: docker rmi my_test_project:latest || true
 
       - name: Build Docker image
         run: docker build -t my_test_project:latest .
