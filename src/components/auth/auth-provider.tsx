@@ -11,7 +11,8 @@ import {
 import { useRouter } from "next/navigation";
 import type { User } from "@/types/auth";
 import { UserRole } from "@/types/auth";
-import { tokenStorage, verifyToken, decodeToken } from "@/lib/auth/client";
+import { tokenStorage, decodeToken } from "@/lib/auth/client";
+import { authService } from "@/services/auth.service";
 
 const ROLE_LEVEL: Record<UserRole, number> = {
   [UserRole.USER]: 1,
@@ -59,55 +60,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string) => {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        return { ok: false, error: (data as { error?: string }).error ?? "Login failed" };
+      try {
+        const data = await authService.login(email, password);
+        if (data.token && data.user) {
+          tokenStorage.set(data.token);
+          setUser(data.user);
+          if (data.user.role === UserRole.ADMIN) router.push("/admin");
+          else if (data.user.role === UserRole.MANAGER) router.push("/manager");
+          else router.push("/user");
+          return { ok: true };
+        }
+        return { ok: false, error: "Invalid response" };
+      } catch (err: unknown) {
+        const msg =
+          err && typeof err === "object" && "response" in err
+            ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error ?? "Login failed")
+            : "Login failed";
+        return { ok: false, error: msg };
       }
-      const token = (data as { token?: string }).token;
-      const userData = (data as { user?: User }).user;
-      if (token && userData) {
-        tokenStorage.set(token);
-        setUser(userData);
-        if (userData.role === UserRole.ADMIN) router.push("/admin");
-        else if (userData.role === UserRole.MANAGER) router.push("/manager");
-        else router.push("/user");
-        return { ok: true };
-      }
-      return { ok: false, error: "Invalid response" };
     },
     [router]
   );
 
   const register = useCallback(
     async (name: string, email: string, password: string) => {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        return { ok: false, error: (data as { error?: string }).error ?? "Registration failed" };
+      try {
+        const data = await authService.register(name, email, password);
+        if (data.token && data.user) {
+          tokenStorage.set(data.token);
+          setUser(data.user);
+          router.push("/user");
+          return { ok: true };
+        }
+        return { ok: false, error: "Invalid response" };
+      } catch (err: unknown) {
+        const msg =
+          err && typeof err === "object" && "response" in err
+            ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error ?? "Registration failed")
+            : "Registration failed";
+        return { ok: false, error: msg };
       }
-      const token = (data as { token?: string }).token;
-      const userData = (data as { user?: User }).user;
-      if (token && userData) {
-        tokenStorage.set(token);
-        setUser(userData);
-        router.push("/user");
-        return { ok: true };
-      }
-      return { ok: false, error: "Invalid response" };
     },
     [router]
   );
 
   const logout = useCallback(() => {
+    authService.logout().catch(() => { });
     tokenStorage.remove();
     setUser(null);
     router.push("/login");

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useRegisterMutation } from "@/hooks/useAuthMutations";
 import { registerSchema } from "@/lib/validation/auth";
 
 export default function RegisterPage() {
@@ -11,7 +12,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  const registerMutation = useRegisterMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,9 +23,7 @@ export default function RegisterPage() {
       setError(parsed.error.issues[0]?.message ?? "Invalid input");
       return;
     }
-    setLoading(true);
     const result = await register(parsed.data.name, parsed.data.email, parsed.data.password);
-    setLoading(false);
     if (!result.ok) setError(result.error ?? "Registration failed");
   };
 
@@ -77,8 +77,8 @@ export default function RegisterPage() {
           />
         </div>
         {error && <div className="error-text">⚠ {error}</div>}
-        <button type="submit" disabled={loading} className="btn-primary" style={{ width: "100%", marginTop: "4px" }}>
-          {loading ? "Creating account…" : "Create account"}
+        <button type="submit" disabled={registerMutation.isPending} className="btn-primary" style={{ width: "100%", marginTop: "4px" }}>
+          {registerMutation.isPending ? "Creating account…" : "Create account"}
         </button>
       </form>
 

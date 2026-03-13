@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { RoleGuard } from "@/components/auth/role-guard";
-import { tokenStorage } from "@/lib/auth/client";
+import { useUsers } from "@/hooks/useUsers";
 import { UserRole } from "@/types/auth";
-import type { User } from "@/types/auth";
 
 const roleBadgeClass: Record<string, string> = {
   ADMIN: "badge-admin",
@@ -21,37 +19,16 @@ export default function AdminPage() {
 }
 
 function AdminUsersTable() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { data: users = [], isLoading, error } = useUsers();
 
-  useEffect(() => {
-    const token = tokenStorage.get();
-    if (!token) {
-      setError("Not authenticated");
-      setLoading(false);
-      return;
-    }
-    fetch("/api/admin/users", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(res.status === 403 ? "Forbidden" : "Failed to load");
-        return res.json();
-      })
-      .then(setUsers)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="loader-inline">
         <div className="loader-spinner" />
       </div>
     );
   }
-  if (error) return <div className="error-text">⚠ {error}</div>;
+  if (error) return <div className="error-text">⚠ {error.message}</div>;
 
   return (
     <div className="animate-fade-in">
