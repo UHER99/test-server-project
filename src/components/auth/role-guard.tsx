@@ -17,8 +17,8 @@ export function RoleGuard({ minRole, children, fallback }: RoleGuardProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-[200px] items-center justify-center">
-        <p>Loading...</p>
+      <div className="loader-inline">
+        <div className="loader-spinner" />
       </div>
     );
   }

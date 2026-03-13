@@ -28,60 +28,64 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Register</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>✨</div>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
+          Create account
+        </h1>
+        <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginTop: "6px" }}>
+          Get started with a free account
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         <div>
-          <label htmlFor="name" className="mb-1 block text-sm font-medium">
-            Name
-          </label>
+          <label htmlFor="name" className="input-label">Name</label>
           <input
             id="name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2"
+            className="input-field"
+            placeholder="John Doe"
             autoComplete="name"
           />
         </div>
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium">
-            Email
-          </label>
+          <label htmlFor="email" className="input-label">Email</label>
           <input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2"
+            className="input-field"
+            placeholder="you@example.com"
             autoComplete="email"
           />
         </div>
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium">
-            Password
-          </label>
+          <label htmlFor="password" className="input-label">Password</label>
           <input
             id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2"
+            className="input-field"
+            placeholder="Min 6 characters"
             autoComplete="new-password"
           />
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? "Creating account..." : "Register"}
+        {error && <div className="error-text">⚠ {error}</div>}
+        <button type="submit" disabled={loading} className="btn-primary" style={{ width: "100%", marginTop: "4px" }}>
+          {loading ? "Creating account…" : "Create account"}
         </button>
       </form>
-      <p className="text-center text-sm text-gray-600">
+
+      <div className="divider" />
+      <p style={{ textAlign: "center", fontSize: "0.875rem", color: "var(--text-muted)" }}>
         Already have an account?{" "}
-        <Link href="/login" className="text-blue-600 hover:underline">
+        <Link href="/login" className="link-accent">
           Sign in
         </Link>
       </p>

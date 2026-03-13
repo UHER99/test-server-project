@@ -3,12 +3,21 @@ import { LoginForm } from "@/components/auth/login-form";
 
 export default function LoginPage() {
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Sign in</h1>
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>🔑</div>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
+          Welcome back
+        </h1>
+        <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginTop: "6px" }}>
+          Sign in to your account
+        </p>
+      </div>
       <LoginForm />
-      <p className="text-center text-sm text-gray-600">
+      <div className="divider" />
+      <p style={{ textAlign: "center", fontSize: "0.875rem", color: "var(--text-muted)" }}>
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="text-blue-600 hover:underline">
+        <Link href="/register" className="link-accent">
           Register
         </Link>
       </p>

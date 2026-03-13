@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "./auth-provider";
-import { loginSchema, type LoginInput } from "@/lib/validation/auth";
+import { loginSchema } from "@/lib/validation/auth";
 
 export function LoginForm() {
   const { login } = useAuth();
@@ -26,9 +26,9 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4">
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
       <div>
-        <label htmlFor="email" className="mb-1 block text-sm font-medium">
+        <label htmlFor="email" className="input-label">
           Email
         </label>
         <input
@@ -36,12 +36,13 @@ export function LoginForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded border border-gray-300 px-3 py-2"
+          className="input-field"
+          placeholder="you@example.com"
           autoComplete="email"
         />
       </div>
       <div>
-        <label htmlFor="password" className="mb-1 block text-sm font-medium">
+        <label htmlFor="password" className="input-label">
           Password
         </label>
         <input
@@ -49,17 +50,14 @@ export function LoginForm() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded border border-gray-300 px-3 py-2"
+          className="input-field"
+          placeholder="••••••••"
           autoComplete="current-password"
         />
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-      >
-        {loading ? "Signing in..." : "Sign in"}
+      {error && <div className="error-text">⚠ {error}</div>}
+      <button type="submit" disabled={loading} className="btn-primary" style={{ width: "100%", marginTop: "4px" }}>
+        {loading ? "Signing in…" : "Sign in"}
       </button>
     </form>
   );

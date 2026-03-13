@@ -6,6 +6,12 @@ import { tokenStorage } from "@/lib/auth/client";
 import { UserRole } from "@/types/auth";
 import type { User } from "@/types/auth";
 
+const roleBadgeClass: Record<string, string> = {
+  ADMIN: "badge-admin",
+  MANAGER: "badge-manager",
+  USER: "badge-user",
+};
+
 export default function AdminPage() {
   return (
     <RoleGuard minRole={UserRole.ADMIN}>
@@ -38,37 +44,53 @@ function AdminUsersTable() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>Loading users...</p>;
-  if (error) return <p className="text-red-600">{error}</p>;
+  if (loading) {
+    return (
+      <div className="loader-inline">
+        <div className="loader-spinner" />
+      </div>
+    );
+  }
+  if (error) return <div className="error-text">⚠ {error}</div>;
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <h1 className="mb-6 text-2xl font-semibold">Admin – All Users</h1>
-      <div className="overflow-hidden rounded-lg border bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+    <div className="animate-fade-in">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "28px" }}>
+        <div>
+          <h1 className="section-title">Users</h1>
+          <p className="section-subtitle">{users.length} registered accounts</p>
+        </div>
+        <div className="badge badge-admin" style={{ fontSize: "0.75rem" }}>
+          🔒 Admin Only
+        </div>
+      </div>
+
+      <div className="glass-card" style={{ overflow: "hidden" }}>
+        <table className="styled-table">
+          <thead>
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
-                ID
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
-                Name
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
-                Email
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
-                Role
-              </th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody>
             {users.map((u) => (
               <tr key={u.id}>
-                <td className="whitespace-nowrap px-4 py-3 text-sm">{u.id}</td>
-                <td className="whitespace-nowrap px-4 py-3 text-sm">{u.name}</td>
-                <td className="whitespace-nowrap px-4 py-3 text-sm">{u.email}</td>
-                <td className="whitespace-nowrap px-4 py-3 text-sm">{u.role}</td>
+                <td style={{ fontFamily: "monospace", color: "var(--text-muted)" }}>#{u.id}</td>
+                <td>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div className="avatar avatar-sm">{u.name.charAt(0).toUpperCase()}</div>
+                    <span style={{ fontWeight: 500, color: "var(--text-primary)" }}>{u.name}</span>
+                  </div>
+                </td>
+                <td>{u.email}</td>
+                <td>
+                  <span className={`badge ${roleBadgeClass[u.role] ?? "badge-user"}`}>
+                    {u.role}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

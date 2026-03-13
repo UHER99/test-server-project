@@ -1,26 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { worker } from "@/lib/msw/browser";
 import { AuthProvider } from "@/components/auth/auth-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    worker
-      .start({
-        onUnhandledRequest: "bypass",
-        quiet: true,
-      })
-      .then(() => setReady(true))
-      .catch(() => setReady(true));
+    async function startMSW() {
+      if (typeof window !== "undefined") {
+        const { worker } = await import("@/lib/msw/browser");
+        await worker
+          .start({
+            onUnhandledRequest: "bypass",
+            quiet: true,
+          })
+          .catch(() => { });
+      }
+      setReady(true);
+    }
+    startMSW();
   }, []);
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>Loading...</p>
+      <div className="loader-screen">
+        <div className="loader-spinner" />
       </div>
     );
   }
