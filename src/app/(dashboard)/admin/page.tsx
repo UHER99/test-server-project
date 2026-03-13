@@ -28,7 +28,7 @@ function AdminUsersTable() {
       </div>
     );
   }
-  if (error) return <div className="error-text">⚠ {error.message}</div>;
+  if (error) return <div className="error-text">⚠ {(error as Error).message}</div>;
 
   return (
     <div className="animate-fade-in">
