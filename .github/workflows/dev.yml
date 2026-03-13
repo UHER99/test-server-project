@@ -3,7 +3,7 @@ name: Deploy Dev
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   build-and-deploy:
@@ -13,11 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Stop old container
+        run: docker stop my_test_project || true
 
-      - name: Build
-        run: npm run build
+      - name: Remove old container
+        run: docker rm my_test_project || true
 
-      - name: Restart application
-        run: pm2 restart my_test_project || pm2 start npm --name "my_test_project" -- start
+      - name: Remove old image
+        run: docker rmi my_test_project:latest || true
+
+      - name: Build Docker image
+        run: docker build -t my_test_project:latest .
+
+      - name: Run Docker container
+        run: |
+          docker run -d \
+            --name my_test_project \
+            -p 3000:3000 \
+            --restart unless-stopped \
+            my_test_project:latest
