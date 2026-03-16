@@ -13,16 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Remove old container
-        run: |
-          echo "Removing old container if exists..."
-          docker stop my_test_project || true
-          docker rm my_test_project || true
-
       - name: Deploy with Docker Compose
         run: |
-          echo "Stopping old compose services..."
+          echo "Stopping old container..."
           docker-compose down || true
+          docker rm -f my_test_project 2>/dev/null || true
 
           echo "Building new image..."
           docker-compose build --no-cache
