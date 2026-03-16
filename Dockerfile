@@ -26,7 +26,7 @@ ENV PORT=3000
 
 # ติดตั้ง dependencies อีกครั้งใน production (สำคัญ!)
 COPY package.json package-lock.json ./
-RUN npm ci --prefer-offline --no-audit --progress=false --omit=dev
+# RUN npm ci --prefer-offline --no-audit --progress=false --omit=dev
 
 # Copy built files
 COPY --from=builder /app/public ./public
