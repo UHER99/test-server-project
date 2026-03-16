@@ -26,6 +26,6 @@ jobs:
         run: |
           docker run -d \
             --name my_test_project \
-            -p 3000:3000 \
+            -p 3011:3000 \
             --restart unless-stopped \
             my_test_project:latest

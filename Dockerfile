@@ -24,14 +24,13 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# ติดตั้ง dependencies อีกครั้งใน production (สำคัญ!)
-COPY package.json package-lock.json ./
-# RUN npm ci --prefer-offline --no-audit --progress=false --omit=dev
+# Copy standalone build (includes node_modules and server.js)
+COPY --from=builder /app/.next/standalone ./
 
-# Copy built files
+# Copy static assets (not included in standalone)
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
