@@ -24,14 +24,20 @@ jobs:
           echo "Starting new container..."
           docker-compose up -d
 
-          echo "Waiting for container to start..."
-          sleep 10
-
       - name: Health Check
         run: |
-          echo "Checking health..."
-          curl -f http://localhost:3011 || (echo "Health check failed!" && exit 1)
-          echo "Health check passed!"
+          echo "Waiting for container to be ready..."
+          for i in 1 2 3 4 5 6; do
+            sleep 5
+            echo "Attempt $i: checking health..."
+            if docker exec my_test_project curl -sf http://localhost:3000 > /dev/null 2>&1; then
+              echo "Health check passed!"
+              exit 0
+            fi
+          done
+          echo "Health check failed!"
+          docker-compose logs
+          exit 1
 
       - name: Cleanup old images
         run: |
