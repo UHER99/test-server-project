@@ -3,15 +3,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: my_test_project:latest      # ← เพิ่มบรรทัดนี้
+    image: my_test_project:latest
     container_name: my_test_project
     ports:
       - "3011:3000"
     environment:
       - NODE_ENV=production
+      - HOSTNAME=0.0.0.0
     restart: unless-stopped
-    healthcheck:                        # ← เพิ่ม health check
+    healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s

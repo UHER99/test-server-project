@@ -13,19 +13,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Stop old container
-        run: docker stop my_test_project || true
-
-      - name: Remove old container
-        run: docker rm my_test_project || true
-
-      - name: Build Docker image
-        run: docker build -t my_test_project:latest .
-
-      - name: Run Docker container
+      - name: Stop and remove old container
         run: |
-          docker run -d \
-            --name my_test_project \
-            -p 3011:3000 \
-            --restart unless-stopped \
-            my_test_project:latest
+          docker-compose down --remove-orphans || true
+          docker rm -f my_test_project 2>/dev/null || true
+
+      - name: Build and run with Docker Compose
+        run: |
+          docker-compose build --no-cache
+          docker-compose up -d
+
+      - name: Health check
+        run: |
+          echo "Waiting for app to be ready..."
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if docker exec my_test_project curl -sf http://localhost:3000 > /dev/null 2>&1; then
+              echo "Health check passed."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Health check failed."
+          docker-compose logs app
+          exit 1
+
+      - name: Cleanup old images
+        run: docker image prune -f
