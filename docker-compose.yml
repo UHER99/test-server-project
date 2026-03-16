@@ -1,9 +1,8 @@
+version: '3.8'
+
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: my_test_project:latest
+    image: uherdockerhub/my-dockerhub:latest    # ← ดึงจาก Docker Hub
     container_name: my_test_project
     ports:
       - "3011:3000"
