@@ -1,11 +1,19 @@
+version: '3.8'
+
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+    image: my_test_project:latest      # ← เพิ่มบรรทัดนี้
     container_name: my_test_project
     ports:
       - "3011:3000"
     environment:
       - NODE_ENV=production
     restart: unless-stopped
+    healthcheck:                        # ← เพิ่ม health check
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

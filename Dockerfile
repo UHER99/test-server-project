@@ -1,36 +1,47 @@
-# Stage 1: Install dependencies
+# ==========================================
+# Stage 1: Dependencies
+# ==========================================
 FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# ตั้งค่า npm
-RUN npm config set fetch-timeout 120000 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000
+COPY package*.json ./
+RUN npm ci
 
-COPY package.json package-lock.json ./
-RUN npm ci --prefer-offline --no-audit --progress=false
-
-# Stage 2: Build
+# ==========================================
+# Stage 2: Builder
+# ==========================================
 FROM node:20-alpine AS builder
 WORKDIR /app
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
-# Stage 3: Production
+# ==========================================
+# Stage 3: Runner (Production)
+# ==========================================
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV PORT=3000
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Copy standalone build (includes node_modules and server.js)
-COPY --from=builder /app/.next/standalone ./
+# Install curl for healthcheck
+RUN apk add --no-cache curl
 
-# Copy static assets (not included in standalone)
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
 
 EXPOSE 3000
+ENV PORT 3000
 
 CMD ["node", "server.js"]
