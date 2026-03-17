@@ -26,9 +26,6 @@ jobs:
           docker tag ${{ secrets.DOCKER_USERNAME }}/my-dockerhub:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/my-dockerhub:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-dockerhub:latest
 
-      - name: Logout from Docker Hub          # ← เพิ่มบรรทัดนี้!
-        run: docker logout
-
       - name: Stop and remove old container
         run: |
           docker-compose down --remove-orphans || true
@@ -38,6 +35,9 @@ jobs:
         run: |
           docker-compose pull
           docker-compose up -d
+
+      - name: Logout from Docker Hub
+        run: docker logout
 
       - name: Health check
         run: |
